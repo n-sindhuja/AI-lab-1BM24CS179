@@ -1,60 +1,97 @@
 import random
-board = [['-' for _ in range(3)] for _ in range(3)]
-def show_board():
-    for row in board:
-        print(" ".join(row))
-def is_full():
-    for i in range(3):
-        for j in range(3):
-            if board[i][j] == '-':
-                return False
-    return True
-def has_won(player):
-    for i in range(3):
-        if (board[i][0] == player and
-            board[i][1] == player and
-            board[i][2] == player):
+
+def display_board(board):
+    print("\n")
+    print(" " + board[0] + " | " + board[1] + " | " + board[2])
+    print("---|---|---")
+    print(" " + board[3] + " | " + board[4] + " | " + board[5])
+    print("---|---|---")
+    print(" " + board[6] + " | " + board[7] + " | " + board[8])
+    print()
+def check_winner(board, player):
+    winning_positions = [
+        (0, 1, 2),  # Row 1
+        (3, 4, 5),  # Row 2
+        (6, 7, 8),  # Row 3
+        (0, 3, 6),  # Column 1
+        (1, 4, 7),  # Column 2
+        (2, 5, 8),  # Column 3
+        (0, 4, 8),  # Diagonal
+        (2, 4, 6)   # Diagonal
+    ]
+    for a, b, c in winning_positions:
+        if board[a] == board[b] == board[c] == player:
             return True
-    for j in range(3):
-        if (board[0][j] == player and
-            board[1][j] == player and
-            board[2][j] == player):
-            return True
-    if (board[0][0] == player and
-        board[1][1] == player and
-        board[2][2] == player):
-        return True
-    if (board[0][2] == player and
-        board[1][1] == player and
-        board[2][0] == player):
-        return True
     return False
-def start_game():
-    player = random.choice(['X', 'O'])
-    print("Player", player, "starts!")
+def board_full(board):
+    return all(cell != " " for cell in board)
+def computer_move(board):
+    empty_cells = [i for i in range(9) if board[i] == " "]
+    if empty_cells:
+        return random.choice(empty_cells)
+    return -1
+def tic_tac_toe():
+    board = [" "] * 9
+    human = "X"
+    computer = "O"
+    print("===== TIC-TAC-TOE =====")
+    print("You are X")
+    print("Computer is O")
+    print("\nCell numbers:")
+    print(" 1 | 2 | 3 ")
+    print("---|---|---")
+    print(" 4 | 5 | 6 ")
+    print("---|---|---")
+    print(" 7 | 8 | 9 ")
+    turn = random.choice(["human", "computer"])
     while True:
-        print("\nCurrent Board:")
-        show_board()
-        print("\nPlayer", player)
-        row = int(input("Enter row (1-3): ")) - 1
-        col = int(input("Enter column (1-3): ")) - 1
-        if row < 0 or row >= 3 or col < 0 or col >= 3:
-            print("Invalid position!")
-            continue
-        if board[row][col] != '-':
-            print("Position already occupied!")
-            continue
-        board[row][col] = player
-        if has_won(player):
-            show_board()
-            print("Player", player, "wins!")
-            break
-        if is_full():
-            show_board()
-            print("Game is a draw!")
-            break
-        if player == 'X':
-            player = 'O'
+        display_board(board)
+        if turn == "human":
+            try:
+                position = int(input("Enter a position (1-9): ")) - 1
+
+                if position < 0 or position > 8:
+                    print("Invalid position! Choose between 1 and 9.")
+                    continue
+
+                if board[position] != " ":
+                    print("That position is already occupied!")
+                    continue
+
+                board[position] = human
+
+                if check_winner(board, human):
+                    display_board(board)
+                    print("Congratulations! You won!")
+                    break
+
+                if board_full(board):
+                    display_board(board)
+                    print("It's a draw!")
+                    break
+
+                turn = "computer"
+
+            except ValueError:
+                print("Please enter a number between 1 and 9.")
         else:
-            player = 'X'
-start_game()
+            print("Computer is making a move...")
+
+            position = computer_move(board)
+            board[position] = computer
+
+            if check_winner(board, computer):
+                display_board(board)
+                print("Computer wins!")
+                break
+
+            if board_full(board):
+                display_board(board)
+                print("It's a draw!")
+                break
+
+            turn = "human"
+
+
+# Start the game
+tic_tac_toe()
